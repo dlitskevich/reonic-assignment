@@ -1,3 +1,28 @@
+export type IntervalDataPoint = {
+  interval: number;
+  time: string;
+  avg: number;
+  max: number;
+  min: number;
+};
+
+export type AggregatedDailyData = {
+  dailyStats: {
+    avg: number;
+    max: number;
+    min: number;
+  };
+  intervalData: IntervalDataPoint[];
+  totalIntervals: number;
+  intervalMinutes: number;
+};
+
+export type PowerHistogramDataPoint = {
+  maxPowerKw: number;
+  count: number;
+  percentage: number;
+};
+
 export type ChargepointConfig = {
   count: number;
   powerKw: number;
@@ -16,5 +41,6 @@ export type SimulationResults = {
   maxPowerKw: number;
   maxTheoreticalPowerKw: number;
   concurrencyFactor: number;
-  powerHistory: number[];
+  aggregated_daily_data: AggregatedDailyData;
+  power_histogram: PowerHistogramDataPoint[];
 };

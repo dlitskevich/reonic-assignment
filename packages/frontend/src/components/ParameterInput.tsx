@@ -1,5 +1,6 @@
 import { ChargepointConfig, SimulationParameters } from "../types";
 import { ChargepointConfigSection } from "./ChargepointConfig";
+import { RangeSlider } from "./RangeSlider/RangeSlider";
 
 interface ParameterInputProps {
   parameters: SimulationParameters;
@@ -56,7 +57,7 @@ export const ParameterInput = ({
             onChange={(e) =>
               handleChange(
                 "consumptionKwhPer100km",
-                parseFloat(e.target.value) || 0
+                parseFloat(e.target.value) || 1
               )
             }
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
@@ -85,73 +86,34 @@ export const ParameterInput = ({
           />
         </div>
 
-        <div>
-          <label
-            htmlFor="interval"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Interval (minutes)
-          </label>
-          <input
-            id="interval"
-            type="number"
-            min="1"
-            max="60"
-            step="1"
-            value={parameters.intervalMinutes}
-            onChange={(e) =>
-              handleChange("intervalMinutes", parseInt(e.target.value) || 1)
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-            disabled={isRunning}
-          />
-        </div>
+        <RangeSlider
+          id="interval"
+          label="Interval (minutes)"
+          value={parameters.intervalMinutes}
+          min={5}
+          max={20}
+          step={5}
+          onChange={(value) => handleChange("intervalMinutes", value || 5)}
+          disabled={isRunning}
+          valueDisplay={`${parameters.intervalMinutes} minutes`}
+        />
 
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <label
-              htmlFor="arrivalMultiplier"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Arrival Probability Multiplier
-            </label>
-            <span className="text-sm font-semibold text-blue-600">
-              {parameters.arrivalProbabilityMultiplier}%
-            </span>
-          </div>
-          <input
-            id="arrivalMultiplier"
-            type="range"
-            min="20"
-            max="200"
-            step="1"
-            value={parameters.arrivalProbabilityMultiplier}
-            onChange={(e) =>
-              handleChange(
-                "arrivalProbabilityMultiplier",
-                parseFloat(e.target.value) || 100
-              )
-            }
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-            style={{
-              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${
-                ((parameters.arrivalProbabilityMultiplier - 20) / (200 - 20)) *
-                100
-              }%, #e5e7eb ${
-                ((parameters.arrivalProbabilityMultiplier - 20) / (200 - 20)) *
-                100
-              }%, #e5e7eb 100%)`,
-            }}
-            disabled={isRunning}
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>20%</span>
-            <span>200%</span>
-          </div>
-          <p className="text-xs text-gray-500 mt-1">
-            Controls how many cars arrive to charge (default: 100%)
-          </p>
-        </div>
+        <RangeSlider
+          id="arrivalMultiplier"
+          label="Arrival Probability Multiplier"
+          value={parameters.arrivalProbabilityMultiplier}
+          min={20}
+          max={200}
+          step={1}
+          onChange={(value) =>
+            handleChange("arrivalProbabilityMultiplier", value || 100)
+          }
+          disabled={isRunning}
+          valueDisplay={`${parameters.arrivalProbabilityMultiplier}%`}
+          minLabel="20%"
+          maxLabel="200%"
+          description="Changes the probability of a car arriving"
+        />
       </div>
 
       <button

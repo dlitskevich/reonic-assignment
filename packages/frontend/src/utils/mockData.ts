@@ -1,4 +1,9 @@
-import { SimulationParameters, SimulationResults } from "../types";
+import {
+  SimulationParameters,
+  SimulationResults,
+  PowerHistogramDataPoint,
+} from "../types";
+import { calculateDailyData } from "./chartCalculations";
 
 /**
  * Generates mock simulation results based on the provided parameters.
@@ -77,11 +82,36 @@ export function generateMockResults(
   const maxPower = Math.max(...powerHistory);
   const concurrencyFactor = maxPower / maxTheoreticalPower;
 
+  // Calculate daily energy history
+  const aggregated_daily_data = calculateDailyData(
+    powerHistory,
+    params.intervalMinutes
+  );
+
+  // Calculate power histogram
+  const bins = 20;
+  const binSize = maxTheoreticalPower / bins;
+  const binsCount = new Array(bins).fill(0);
+
+  powerHistory.forEach((power) => {
+    const binIndex = Math.min(Math.floor(power / binSize), bins - 1);
+    binsCount[binIndex]++;
+  });
+
+  const power_histogram: PowerHistogramDataPoint[] = binsCount.map(
+    (count, index) => ({
+      maxPowerKw: (index + 1) * binSize,
+      count: count,
+      percentage: (count / powerHistory.length) * 100,
+    })
+  );
+
   return {
     totalEnergyKwh: totalEnergy,
     maxPowerKw: maxPower,
     maxTheoreticalPowerKw: maxTheoreticalPower,
     concurrencyFactor,
-    powerHistory,
+    aggregated_daily_data,
+    power_histogram,
   };
 }

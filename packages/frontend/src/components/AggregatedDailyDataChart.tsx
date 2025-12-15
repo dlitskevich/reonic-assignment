@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -10,21 +9,24 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { SimulationResults } from "../types";
-import { calculateDailyData } from "../utils/chartCalculations";
 
-type PowerHistoryChartProps = {
+type AggregatedDailyDataChartProps = {
   results: SimulationResults;
-  intervalMinutes: number;
 };
 
-export const PowerHistoryChart = ({
+export const AggregatedDailyDataChart = ({
   results,
-  intervalMinutes,
-}: PowerHistoryChartProps) => {
-  const dailyData = useMemo(
-    () => calculateDailyData(results.powerHistory, intervalMinutes),
-    [results.powerHistory, intervalMinutes]
-  );
+}: AggregatedDailyDataChartProps) => {
+  // Use the first daily data entry (aggregated across all days)
+  const dailyData = results.aggregated_daily_data;
+
+  if (!dailyData) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <p className="text-gray-600">No data available</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -32,7 +34,8 @@ export const PowerHistoryChart = ({
         Daily Energy Delivery Pattern
       </h2>
       <p className="text-sm text-gray-600 mb-6">
-        Average, maximum, and minimum energy delivered per {intervalMinutes}
+        Average, maximum, and minimum energy delivered per{" "}
+        {dailyData.intervalMinutes}
         -minute interval across all days
       </p>
 
@@ -75,7 +78,7 @@ export const PowerHistoryChart = ({
             label={{
               value: "Time of Day",
               position: "insideBottom",
-              offset: -5,
+              offset: 10,
             }}
             stroke="#6b7280"
             angle={-45}

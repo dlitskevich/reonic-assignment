@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import { ParameterInput } from "./components/ParameterInput";
 import { StatisticsDisplay } from "./components/StatisticsDisplay";
-import { PowerHistoryChart } from "./components/PowerHistoryChart";
+import { AggregatedDailyDataChart } from "./components/AggregatedDailyDataChart";
 import { PowerDistributionChart } from "./components/PowerDistributionChart";
 import { Sidebar } from "./components/Sidebar";
 import { SimulationParameters, SimulationResults } from "./types";
 import { generateMockResults } from "./utils/mockData";
+import {
+  deserializeParametersFromUrl,
+  updateUrlParameters,
+} from "./utils/urlParams";
 
 const defaultParameters: SimulationParameters = {
   chargepoints: [
@@ -20,16 +24,25 @@ const defaultParameters: SimulationParameters = {
 };
 
 function App() {
-  const [parameters, setParameters] =
-    useState<SimulationParameters>(defaultParameters);
+  // Initialize parameters from URL or use defaults
+  const [parameters, setParameters] = useState<SimulationParameters>(() => {
+    const urlParams = deserializeParametersFromUrl();
+    return urlParams || defaultParameters;
+  });
   const [results, setResults] = useState<SimulationResults | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Update URL when parameters change
+  useEffect(() => {
+    updateUrlParameters(parameters);
+  }, [parameters]);
+
   // Generate initial mock data on mount
   useEffect(() => {
-    const initialResults = generateMockResults(defaultParameters);
+    const initialResults = generateMockResults(parameters);
     setResults(initialResults);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRunSimulation = () => {
@@ -100,10 +113,7 @@ function App() {
             {results && (
               <>
                 <StatisticsDisplay results={results} />
-                <PowerHistoryChart
-                  results={results}
-                  intervalMinutes={parameters.intervalMinutes}
-                />
+                <AggregatedDailyDataChart results={results} />
                 <PowerDistributionChart results={results} />
               </>
             )}

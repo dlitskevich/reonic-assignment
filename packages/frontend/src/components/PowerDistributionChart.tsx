@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -9,7 +8,39 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { SimulationResults } from "../types";
+import { PowerHistogramDataPoint, SimulationResults } from "../types";
+
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{
+    payload: PowerHistogramDataPoint;
+  }>;
+  label?: number | string;
+}) => {
+  if (active && payload) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-3">
+        <p className="font-semibold text-gray-800 mb-2">
+          Power level: {typeof label === "number" ? label.toFixed(0) : label} kW
+        </p>
+        <p className="text-sm text-gray-600">
+          <span className="font-medium">Percentage:</span>{" "}
+          {data.percentage.toFixed(1)}%
+        </p>
+        <p className="text-sm text-gray-600">
+          <span className="font-medium">Occurrences:</span>{" "}
+          {data.count.toFixed(0)}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 type PowerDistributionChartProps = {
   results: SimulationResults;
@@ -18,27 +49,16 @@ type PowerDistributionChartProps = {
 export const PowerDistributionChart = ({
   results,
 }: PowerDistributionChartProps) => {
-  // Create histogram data for power distribution
-  const histogramData = useMemo(() => {
-    const bins = 20;
-    const maxPower = results.maxTheoreticalPowerKw;
-    const binSize = maxPower / bins;
-    const binsCount = new Array(bins).fill(0);
+  // Use power histogram data directly
+  const histogramData = results.power_histogram;
 
-    results.powerHistory.forEach((power) => {
-      const binIndex = Math.min(Math.floor(power / binSize), bins - 1);
-      binsCount[binIndex]++;
-    });
-
-    return binsCount.map((count, index) => ({
-      powerRange: `${(index * binSize).toFixed(0)}-${(
-        (index + 1) *
-        binSize
-      ).toFixed(0)} kW`,
-      count: count,
-      percentage: (count / results.powerHistory.length) * 100,
-    }));
-  }, [results.powerHistory, results.maxTheoreticalPowerKw]);
+  if (histogramData.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <p className="text-gray-600">No histogram data available</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -52,11 +72,15 @@ export const PowerDistributionChart = ({
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis
-            dataKey="powerRange"
-            angle={-45}
-            textAnchor="end"
-            height={100}
+            height={60}
+            dataKey="maxPowerKw"
             stroke="#6b7280"
+            tickFormatter={(value) => value.toFixed(0)}
+            label={{
+              value: "Power (kW)",
+              position: "insideBottom",
+              offset: 10,
+            }}
           />
           <YAxis
             label={{
@@ -67,21 +91,9 @@ export const PowerDistributionChart = ({
             stroke="#6b7280"
             domain={[0, "auto"]}
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#fff",
-              border: "1px solid #e5e7eb",
-              borderRadius: "8px",
-            }}
-            formatter={(value: number, name: string) => {
-              if (name === "percentage") {
-                return [`${value.toFixed(2)}%`, "Percentage"];
-              }
-              return [value, "Occurrences"];
-            }}
-          />
-          <Legend />
-          <Bar dataKey="percentage" fill="#3b82f6" name="Distribution" />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend verticalAlign="bottom" height={36} />
+          <Bar dataKey="percentage" fill="#3b82f6" name="Percentage" />
         </BarChart>
       </ResponsiveContainer>
     </div>

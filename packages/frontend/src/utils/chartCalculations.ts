@@ -1,20 +1,4 @@
-export type IntervalDataPoint = {
-  interval: number;
-  time: string;
-  avg: number;
-  max: number;
-  min: number;
-};
-
-export type DailyData = {
-  dailyStats: {
-    avg: number;
-    max: number;
-    min: number;
-  };
-  intervalData: IntervalDataPoint[];
-  totalIntervals: number;
-};
+import { AggregatedDailyData, IntervalDataPoint } from "../types";
 
 /**
  * Calculates daily energy statistics and interval data from power history.
@@ -26,7 +10,7 @@ export type DailyData = {
 export function calculateDailyData(
   powerHistory: number[],
   intervalMinutes: number
-): DailyData {
+): AggregatedDailyData {
   const intervalsPerDay = (24 * 60) / intervalMinutes;
   const days = Math.ceil(powerHistory.length / intervalsPerDay);
   const dailyEnergies: number[] = [];
@@ -93,24 +77,14 @@ export function calculateDailyData(
     }
   }
 
-  // Sample data if there are too many intervals to avoid overwhelming the chart
-  const maxDataPoints = 200;
-  const sampleRate =
-    intervalData.length > maxDataPoints
-      ? Math.ceil(intervalData.length / maxDataPoints)
-      : 1;
-
-  const sampledData = intervalData.filter(
-    (_, index) => index % sampleRate === 0
-  );
-
   return {
     dailyStats: {
       avg: avgEnergy,
       max: maxEnergy,
       min: minEnergy,
     },
-    intervalData: sampledData,
+    intervalData,
     totalIntervals: intervalData.length,
+    intervalMinutes,
   };
 }
