@@ -35,7 +35,9 @@ class Simulator:
         self.days = days
         self.interval_minutes = interval_minutes
 
-        self.chargepoints = [Chargepoint(power_per_chargepoint_kw) for _ in range(num_chargepoints)]
+        self.chargepoints = [
+            Chargepoint(power_per_chargepoint_kw) for _ in range(num_chargepoints)
+        ]
         self.power_history: List[float] = []
         self.total_energy = 0.0
 
@@ -54,10 +56,13 @@ class Simulator:
             hour = ((interval_idx * self.interval_minutes) // 60) % 24
 
             # Perform charging step for all chargepoints
-            interval_energy = 0.0
+            interval_energy = self._charge_step()
+            # self._arrival_step(hour) # according to the description, that is not the case
+            self._arrival_each_chargepoint_step(
+                hour
+            )  # models arrival for each chargepoint independently
             power_demand = 0
             for chargepoint in self.chargepoints:
-                interval_energy += self._charge_step(chargepoint, hour, self.interval_minutes)
                 if chargepoint.is_charging():
                     power_demand += chargepoint.power_kw
 
@@ -74,30 +79,55 @@ class Simulator:
             "power_history": self.power_history,
         }
 
-    def _charge_step(
-        self, chargepoint: Chargepoint, hour: int, interval_minutes: int = 15
-    ) -> float:
+    def _charge_step(self) -> float:
         """
-        Perform one charging step for a given chargepoint.
-
-        Args:
-            chargepoint: Chargepoint to charge
-            hour: Hour of the day (0-23)
-            interval_minutes: Duration of the charging interval in minutes (15 minutes by default)
+        Perform one charging step for all chargepoints.
 
         Returns:
-            Energy delivered in kWh
+            Energy delivered in kWh for all chargepoints in the interval
         """
-        vehicle: Vehicle | None = chargepoint.vehicle
-        if vehicle is None:
-            if sample_arrival(hour):
-                energy_needed = sample_charging_energy(self.consumption_kwh_per_100km)
-                if energy_needed > 0:
-                    chargepoint.vehicle = Vehicle(energy_needed)
-            return 0
-        energy_delivered = vehicle.charge(chargepoint.power_kw * (interval_minutes / 60))
+        energy_delivered = 0.0
+        interval_minutes = self.interval_minutes
+        for chargepoint in self.chargepoints:
+            vehicle: Vehicle | None = chargepoint.vehicle
+            if vehicle is None:
+                continue
+            energy_delivered += vehicle.charge(
+                chargepoint.power_kw * (interval_minutes / 60)
+            )
 
-        if not vehicle.is_charging():
-            chargepoint.vehicle = None
+            if not vehicle.is_charging():
+                chargepoint.vehicle = None
 
         return energy_delivered
+
+    def _arrival_step(self, hour: int) -> float:
+        """
+        Perform one arrival step for all chargepoints.
+        """
+        if not sample_arrival(hour):
+            return
+
+        energy_needed = sample_charging_energy(self.consumption_kwh_per_100km)
+
+        if energy_needed == 0:
+            return
+
+        chargepoint = next((c for c in self.chargepoints if c.vehicle is None), None)
+
+        if chargepoint is None:
+            return
+        chargepoint.vehicle = Vehicle(energy_needed)
+
+    def _arrival_each_chargepoint_step(self, hour: int) -> float:
+        """
+        Perform one arrival step for each chargepoint.
+        """
+        for chargepoint in self.chargepoints:
+            if chargepoint.vehicle is None:
+                if sample_arrival(hour):
+                    energy_needed = sample_charging_energy(
+                        self.consumption_kwh_per_100km
+                    )
+                    if energy_needed > 0:
+                        chargepoint.vehicle = Vehicle(energy_needed)

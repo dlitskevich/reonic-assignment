@@ -67,7 +67,9 @@ def main():
     print(f"  Concurrency factor: {results['concurrency_factor']:.2f}")
 
     plt.hist(results["power_history"], bins=24)
-    plt.savefig("output/power_history.png")
+    path = Path(__file__).parent / "output" / "power_history.png"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(path)
     plt.close()
 
 

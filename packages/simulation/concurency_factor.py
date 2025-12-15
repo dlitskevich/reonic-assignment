@@ -1,3 +1,4 @@
+from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from simulation.simulator import Simulator
@@ -29,10 +30,20 @@ def main(seed=None):
         max_theoretical_powers.append(results["max_theoretical_power_kw"])
         max_powers.append(results["max_power_kw"])
 
-    plt.plot(range(1, max_num_chargepoints + 1), concurrency_factors, label="Concurrency factor")
+    plt.plot(
+        range(1, max_num_chargepoints + 1),
+        concurrency_factors,
+        label="Concurrency factor",
+    )
     plt.legend()
     plt.xticks(range(1, max_num_chargepoints + 1, max_num_chargepoints // 5))
-    plt.savefig(f"output/concurency_factor_{seed if seed is not None else 'random'}.png")
+    path = (
+        Path(__file__).parent
+        / "output"
+        / f"concurency_factor_{seed if seed is not None else 'random'}.png"
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(path)
     plt.close()
 
 
