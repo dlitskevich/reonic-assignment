@@ -18,3 +18,76 @@ model User {
   email String  @unique
   name  String?
 }
+
+model SimulationParameter {
+  id                           Int                @id @default(autoincrement())
+  chargepoints                 Chargepoint[]
+  consumptionKwhPer100km       Float
+  days                         Int
+  intervalMinutes              Int
+  arrivalProbabilityMultiplier Int // Stored as percentage (20-200)
+  simulationResults            SimulationResult[]
+  createdAt                    DateTime           @default(now())
+  updatedAt                    DateTime           @updatedAt
+}
+
+model Chargepoint {
+  id                    Int                 @id @default(autoincrement())
+  simulationParameter   SimulationParameter @relation(fields: [simulationParameterId], references: [id], onDelete: Cascade)
+  simulationParameterId Int
+  powerKw               Float
+  count                 Int
+}
+
+model SimulationResult {
+  id                       Int                       @id @default(autoincrement())
+  simulationParameter      SimulationParameter?      @relation(fields: [simulationParameterId], references: [id], onDelete: Cascade)
+  simulationParameterId    Int?
+  totalEnergyKwh           Float
+  maxPowerKw               Float
+  maxTheoreticalPowerKw    Float
+  concurrencyFactor        Float
+  aggregatedDailyData      AggregatedDailyData?
+  powerHistogramDataPoints PowerHistogramDataPoint[]
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+}
+
+model AggregatedDailyData {
+  id                 Int                 @id @default(autoincrement())
+  simulationResult   SimulationResult    @relation(fields: [simulationResultId], references: [id], onDelete: Cascade)
+  simulationResultId Int                 @unique
+  totalIntervals     Int
+  intervalMinutes    Int
+  dailyStats         DailyStats?
+  intervalDataPoints IntervalDataPoint[]
+}
+
+model DailyStats {
+  id                    Int                 @id @default(autoincrement())
+  aggregatedDailyData   AggregatedDailyData @relation(fields: [aggregatedDailyDataId], references: [id], onDelete: Cascade)
+  aggregatedDailyDataId Int                 @unique
+  avg                   Float
+  max                   Float
+  min                   Float
+}
+
+model IntervalDataPoint {
+  id                    Int                 @id @default(autoincrement())
+  aggregatedDailyData   AggregatedDailyData @relation(fields: [aggregatedDailyDataId], references: [id], onDelete: Cascade)
+  aggregatedDailyDataId Int
+  interval              Int
+  time                  DateTime
+  avg                   Float
+  max                   Float
+  min                   Float
+}
+
+model PowerHistogramDataPoint {
+  id                 Int              @id @default(autoincrement())
+  simulationResult   SimulationResult @relation(fields: [simulationResultId], references: [id], onDelete: Cascade)
+  simulationResultId Int
+  maxPowerKw         Float
+  count              Int
+  percentage         Float
+}

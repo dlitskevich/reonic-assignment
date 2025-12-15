@@ -5,7 +5,7 @@ import { AggregatedDailyDataChart } from "./components/AggregatedDailyDataChart"
 import { PowerDistributionChart } from "./components/PowerDistributionChart";
 import { Sidebar } from "./components/Sidebar";
 import { SimulationParameters, SimulationResults } from "./types";
-import { generateMockResults } from "./utils/mockData";
+import { useRunSimulation } from "./graphql/useRunSimulation";
 import {
   deserializeParametersFromUrl,
   updateUrlParameters,
@@ -30,31 +30,35 @@ function App() {
     return urlParams || defaultParameters;
   });
   const [results, setResults] = useState<SimulationResults | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { runSimulation, loading: isRunning } = useRunSimulation();
 
   // Update URL when parameters change
   useEffect(() => {
     updateUrlParameters(parameters);
   }, [parameters]);
 
-  // Generate initial mock data on mount
+  // Run initial simulation on mount
   useEffect(() => {
-    const initialResults = generateMockResults(parameters);
-    setResults(initialResults);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    runSimulation(parameters)
+      .then((results) => {
+        setResults(results);
+      })
+      .catch((error) => {
+        console.error("Failed to run initial simulation:", error);
+      });
   }, []);
 
-  const handleRunSimulation = () => {
-    setIsRunning(true);
-    // Simulate async operation with a small delay for better UX
-    setTimeout(() => {
-      const newResults = generateMockResults(parameters);
+  const handleRunSimulation = async () => {
+    try {
+      const newResults = await runSimulation(parameters);
       setResults(newResults);
-      setIsRunning(false);
       // Close sidebar on mobile after running simulation
       setSidebarOpen(false);
-    }, 500);
+    } catch (error) {
+      console.error("Failed to run simulation:", error);
+      // TODO: Show error message to user
+    }
   };
 
   return (

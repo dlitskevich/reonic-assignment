@@ -18,7 +18,7 @@ export const AggregatedDailyDataChart = ({
   results,
 }: AggregatedDailyDataChartProps) => {
   // Use the first daily data entry (aggregated across all days)
-  const dailyData = results.aggregated_daily_data;
+  const dailyData = results.aggregatedDailyData;
 
   if (!dailyData) {
     return (
@@ -69,7 +69,7 @@ export const AggregatedDailyDataChart = ({
 
       <ResponsiveContainer width="100%" height={400}>
         <LineChart
-          data={dailyData.intervalData}
+          data={dailyData.intervalDataPoints}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />

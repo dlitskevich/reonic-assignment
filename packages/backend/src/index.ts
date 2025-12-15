@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -31,6 +32,16 @@ const server = new ApolloServer<Context>({
 async function startServer() {
   // Start Apollo Server
   await server.start();
+
+  // CORS configuration - allow requests from frontend development server
+  app.use(
+    cors({
+      origin: [
+        "http://localhost:5173" // Vite default port
+      ],
+      credentials: true,
+    })
+  );
 
   // Middleware
   app.use(express.json());

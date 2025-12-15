@@ -50,7 +50,7 @@ export const PowerDistributionChart = ({
   results,
 }: PowerDistributionChartProps) => {
   // Use power histogram data directly
-  const histogramData = results.power_histogram;
+  const histogramData = results.powerHistogram;
 
   if (histogramData.length === 0) {
     return (
