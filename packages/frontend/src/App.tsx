@@ -38,15 +38,24 @@ function App() {
     updateUrlParameters(parameters);
   }, [parameters]);
 
-  // Run initial simulation on mount
+  // Run initial simulation on mount with initial parameters
   useEffect(() => {
+    let cancelled = false;
     runSimulation(parameters)
       .then((results) => {
-        setResults(results);
+        if (!cancelled) {
+          setResults(results);
+        }
       })
       .catch((error) => {
-        console.error("Failed to run initial simulation:", error);
+        if (!cancelled) {
+          console.error("Failed to run initial simulation:", error);
+        }
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleRunSimulation = async () => {
@@ -57,7 +66,6 @@ function App() {
       setSidebarOpen(false);
     } catch (error) {
       console.error("Failed to run simulation:", error);
-      // TODO: Show error message to user
     }
   };
 

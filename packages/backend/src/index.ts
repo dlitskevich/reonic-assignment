@@ -34,10 +34,11 @@ async function startServer() {
   await server.start();
 
   // CORS configuration - allow requests from frontend development server
+  // TODO: use environment variable for allowed origins
   app.use(
     cors({
       origin: [
-        "http://localhost:5173" // Vite default port
+        "http://localhost:5173", // Vite default port
       ],
       credentials: true,
     })

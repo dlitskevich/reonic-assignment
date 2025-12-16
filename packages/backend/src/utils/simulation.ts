@@ -32,6 +32,9 @@ function calculateDailyData(
   }
 
   // Calculate statistics
+  if (dailyEnergies.length === 0) {
+    throw new Error("Cannot calculate daily statistics: no data points");
+  }
   const avgEnergy =
     dailyEnergies.reduce((sum, e) => sum + e, 0) / dailyEnergies.length;
   const maxEnergy = Math.max(...dailyEnergies);

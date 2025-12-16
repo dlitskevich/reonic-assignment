@@ -45,20 +45,23 @@ export async function runSimulation(
   args: { input: SimulationParameterInput },
   context: Context
 ) {
-  // Check if parameters already exist
-  const allParams = await context.prisma.simulationParameter.findMany({
+  // Check if parameters already exist by querying with filters first
+  // This is more efficient than fetching all parameters
+  const candidates = await context.prisma.simulationParameter.findMany({
+    where: {
+      consumptionKwhPer100km: args.input.consumptionKwhPer100km,
+      days: args.input.days,
+      intervalMinutes: args.input.intervalMinutes,
+      arrivalProbabilityMultiplier: args.input.arrivalProbabilityMultiplier,
+    },
     include: { chargepoints: true },
   });
 
-  // Find existing parameter with matching values
-  let existingParam = allParams.find(
-    (param) =>
-      param.consumptionKwhPer100km === args.input.consumptionKwhPer100km &&
-      param.days === args.input.days &&
-      param.intervalMinutes === args.input.intervalMinutes &&
-      param.arrivalProbabilityMultiplier ===
-        args.input.arrivalProbabilityMultiplier &&
-      compareChargepoints(args.input.chargepoints, param.chargepoints)
+  // Find existing parameter with matching chargepoint configuration
+  // Chargepoint comparison still needs to be done in memory since Prisma
+  // doesn't support deep nested array comparisons
+  let existingParam = candidates.find((param) =>
+    compareChargepoints(args.input.chargepoints, param.chargepoints)
   );
 
   let simulationParameterId: number;
@@ -116,13 +119,19 @@ export async function runSimulation(
           },
           intervalDataPoints: {
             create: results.aggregatedDailyData.intervalDataPoints.map(
-              (point) => ({
-                interval: point.interval,
-                time: new Date(`2000-01-01T${point.time}:00`), // Convert time string to DateTime
-                avg: point.avg,
-                max: point.max,
-                min: point.min,
-              })
+              (point) => {
+                // Parse time string (HH:MM) and create a Date object
+                // Using a fixed date (1970-01-01) for time-only storage
+                const [hours, minutes] = point.time.split(":").map(Number);
+                const timeDate = new Date(1970, 0, 1, hours, minutes, 0);
+                return {
+                  interval: point.interval,
+                  time: timeDate,
+                  avg: point.avg,
+                  max: point.max,
+                  min: point.min,
+                };
+              }
             ),
           },
         },
@@ -164,20 +173,18 @@ export async function runSimulation(
               }
             : null,
           intervalDataPoints:
-            savedResult.aggregatedDailyData.intervalDataPoints.map(
-              (point: any) => ({
-                interval: point.interval,
-                time: point.time.toTimeString().slice(0, 5), // Format as HH:MM
-                avg: point.avg,
-                max: point.max,
-                min: point.min,
-              })
-            ),
+            savedResult.aggregatedDailyData.intervalDataPoints.map((point) => ({
+              interval: point.interval,
+              time: point.time.toTimeString().slice(0, 5), // Format as HH:MM
+              avg: point.avg,
+              max: point.max,
+              min: point.min,
+            })),
           totalIntervals: savedResult.aggregatedDailyData.totalIntervals,
           intervalMinutes: savedResult.aggregatedDailyData.intervalMinutes,
         }
       : null,
-    powerHistogram: savedResult.powerHistogramDataPoints.map((point: any) => ({
+    powerHistogram: savedResult.powerHistogramDataPoints.map((point) => ({
       maxPowerKw: point.maxPowerKw,
       count: point.count,
       percentage: point.percentage,
