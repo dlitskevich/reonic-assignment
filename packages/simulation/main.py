@@ -8,7 +8,7 @@ from pathlib import Path
 # Add parent directory to path to allow imports when running directly
 sys.path.insert(0, str(Path(__file__).parent))
 
-from simulation.simulator import Simulator
+from src.simulator import Simulator
 
 
 def main():

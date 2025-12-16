@@ -35,7 +35,7 @@ This installs the package in editable mode along with dependencies:
 Run a simulation with default parameters (20 chargepoints, 11kW each, 365 days):
 
 ```bash
-python main.py
+python3 main.py
 ```
 
 #### Custom Parameters
@@ -43,7 +43,7 @@ python main.py
 Run with custom parameters:
 
 ```bash
-python main.py --chargepoints 20 --power 11.0 --consumption 18.0 --days 365
+python3 main.py --chargepoints 20 --power 11.0 --consumption 18.0 --days 365
 ```
 
 **Arguments:**
@@ -69,7 +69,7 @@ A power history histogram is saved to `output/power_history.png`.
 Run the concurrency factor analysis:
 
 ```bash
-python concurrency_factor.py
+python3 concurrency_factor.py
 ```
 
 #### Output

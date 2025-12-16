@@ -149,5 +149,4 @@ From the root directory:
 
 - `pnpm dev:frontend` - Start frontend development server
 - `pnpm dev:backend` - Start backend development server
-- `pnpm simulation` - Run standalone Python simulation
 - `pnpm test` - Run tests across all packages

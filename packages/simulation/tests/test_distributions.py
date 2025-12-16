@@ -2,7 +2,7 @@
 
 import pytest
 
-from simulation.distributions import (
+from src.distributions import (
     arrival_probability,
     sample_charging_energy,
     sample_charging_needs_km,

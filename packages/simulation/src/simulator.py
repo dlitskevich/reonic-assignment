@@ -3,9 +3,9 @@
 from math import ceil
 from typing import Dict, List
 
-from simulation.chargepoint import Chargepoint
-from simulation.vehicle import Vehicle
-from simulation.distributions import sample_arrival, sample_charging_energy
+from src.chargepoint import Chargepoint
+from src.vehicle import Vehicle
+from src.distributions import sample_arrival, sample_charging_energy
 
 
 class Simulator:

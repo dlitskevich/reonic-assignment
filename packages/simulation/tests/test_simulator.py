@@ -1,6 +1,6 @@
 """Tests for the simulator."""
 
-from simulation.simulator import Simulator
+from src.simulator import Simulator
 
 
 def test_simulator_initialization():
