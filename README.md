@@ -1,6 +1,8 @@
 # EV Charging Station Simulation
 
-## Overview### Simulations (Task 1)
+## Overview
+
+### Simulations (Task 1)
 
 - Discrete event simulation over 15-minute intervals
 - Calculates total energy, peak power, and concurrency factor
