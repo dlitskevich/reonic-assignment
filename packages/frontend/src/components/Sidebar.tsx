@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { CloseIcon } from "./icons/CloseIcon";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -37,19 +38,7 @@ export const Sidebar = ({ isOpen, onClose, children }: SidebarProps) => {
             className="lg:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Close sidebar"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <CloseIcon />
           </button>
         </div>
         <div className="p-4">{children}</div>

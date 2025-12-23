@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 import { ParameterInput } from "./components/ParameterInput";
-import { StatisticsDisplay } from "./components/StatisticsDisplay";
-import { AggregatedDailyDataChart } from "./components/AggregatedDailyDataChart";
-import { PowerDistributionChart } from "./components/PowerDistributionChart";
 import { Sidebar } from "./components/Sidebar";
 import { SimulationParameters, SimulationResults } from "./types";
 import { useRunSimulation } from "./graphql/useRunSimulation";
@@ -10,24 +7,15 @@ import {
   deserializeParametersFromUrl,
   updateUrlParameters,
 } from "./utils/urlParams";
-
-const defaultParameters: SimulationParameters = {
-  chargepoints: [
-    { count: 5, powerKw: 11.0 },
-    { count: 3, powerKw: 22.0 },
-    { count: 1, powerKw: 50.0 },
-  ],
-  consumptionKwhPer100km: 18.0,
-  days: 365,
-  intervalMinutes: 15,
-  arrivalProbabilityMultiplier: 100,
-};
+import { MenuIcon } from "./components/icons/MenuIcon";
+import { DEFAULT_SIMULATION_PARAMETERS } from "./consts";
+import { Dashboard } from "./components/Dashboard";
 
 function App() {
   // Initialize parameters from URL or use defaults
   const [parameters, setParameters] = useState<SimulationParameters>(() => {
     const urlParams = deserializeParametersFromUrl();
-    return urlParams || defaultParameters;
+    return urlParams || DEFAULT_SIMULATION_PARAMETERS;
   });
   const [results, setResults] = useState<SimulationResults | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -93,19 +81,7 @@ function App() {
             className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Open parameters"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
+            <MenuIcon />
           </button>
         </header>
 
@@ -122,13 +98,7 @@ function App() {
         {/* Content area */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           <div className="max-w-7xl mx-auto space-y-6">
-            {results && (
-              <>
-                <StatisticsDisplay results={results} />
-                <AggregatedDailyDataChart results={results} />
-                <PowerDistributionChart results={results} />
-              </>
-            )}
+            <Dashboard results={results} />
           </div>
         </main>
       </div>
