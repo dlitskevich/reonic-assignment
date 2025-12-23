@@ -56,9 +56,19 @@ export const typeDefs = gql`
     concurrencyFactor: Float!
     aggregatedDailyData: AggregatedDailyData!
     powerHistogram: [PowerHistogramDataPoint!]!
+    chargepointUtilizations: [ChargepointUtilization!]!
     simulationParameterId: Int
     createdAt: String!
     updatedAt: String!
+  }
+
+  type ChargepointUtilization {
+    powerKw: Float!
+    utilization: Float!
+    avgDailyEvents: Float!
+    avgDailyEnergyKwh: Float!
+    avgMonthlyEvents: Float!
+    avgMonthlyEnergyKwh: Float!
   }
 
   type AggregatedDailyData {

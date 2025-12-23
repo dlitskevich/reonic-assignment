@@ -49,8 +49,21 @@ model SimulationResult {
   concurrencyFactor        Float
   aggregatedDailyData      AggregatedDailyData?
   powerHistogramDataPoints PowerHistogramDataPoint[]
+  chargepointUtilizations  ChargepointUtilization[]
   createdAt                DateTime                  @default(now())
   updatedAt                DateTime                  @updatedAt
+}
+
+model ChargepointUtilization {
+  id                  Int              @id @default(autoincrement())
+  simulationResult    SimulationResult @relation(fields: [simulationResultId], references: [id], onDelete: Cascade)
+  simulationResultId  Int
+  powerKw             Float
+  utilization         Float
+  avgDailyEvents      Float
+  avgDailyEnergyKwh   Float
+  avgMonthlyEvents    Float
+  avgMonthlyEnergyKwh Float
 }
 
 model AggregatedDailyData {

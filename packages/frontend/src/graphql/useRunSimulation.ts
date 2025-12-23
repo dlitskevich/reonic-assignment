@@ -32,6 +32,14 @@ const RUN_SIMULATION_MUTATION = gql`
         count
         percentage
       }
+      chargepointUtilizations {
+        powerKw
+        utilization
+        avgDailyEvents
+        avgDailyEnergyKwh
+        avgMonthlyEvents
+        avgMonthlyEnergyKwh
+      }
     }
   }
 `;

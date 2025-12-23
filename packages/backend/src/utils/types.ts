@@ -28,6 +28,15 @@ export type ChargepointConfig = {
   powerKw: number;
 };
 
+export type ChargepointUtilization = {
+  powerKw: number;
+  utilization: number; // Average utilization rate (0-1 or percentage)
+  avgDailyEvents: number;
+  avgDailyEnergyKwh: number;
+  avgMonthlyEvents: number;
+  avgMonthlyEnergyKwh: number;
+};
+
 export type SimulationParameters = {
   chargepoints: ChargepointConfig[];
   consumptionKwhPer100km: number;
@@ -43,4 +52,5 @@ export type SimulationResults = {
   concurrencyFactor: number;
   aggregatedDailyData: AggregatedDailyData;
   powerHistogram: PowerHistogramDataPoint[];
+  chargepointUtilizations: ChargepointUtilization[];
 };

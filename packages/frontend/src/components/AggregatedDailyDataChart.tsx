@@ -102,9 +102,9 @@ export const AggregatedDailyDataChart = ({
             }}
             formatter={(value: number, name: string) => {
               const label =
-                name === "avg"
+                name === "Average"
                   ? "Average"
-                  : name === "max"
+                  : name === "Maximum"
                   ? "Maximum"
                   : "Minimum";
               return [`${value.toFixed(1)} kWh`, label];

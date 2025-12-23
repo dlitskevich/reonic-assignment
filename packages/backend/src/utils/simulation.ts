@@ -1,13 +1,183 @@
+import { sampleArrival, sampleChargingEnergy } from "./distributions";
 import {
   SimulationParameters,
   SimulationResults,
   PowerHistogramDataPoint,
   AggregatedDailyData,
   IntervalDataPoint,
+  ChargepointUtilization,
 } from "./types";
 
 /**
+ * Generates simulation results based on the provided parameters.
+ */
+export function generateResults(
+  params: SimulationParameters
+): SimulationResults {
+  const totalIntervals = Math.ceil(
+    (params.days * 24 * 60) / params.intervalMinutes
+  );
+  const totlaDays = params.days;
+  // Convert multiplier from percentage to factor (100% = 1.0, 200% = 2.0, etc.)
+  const arrivalMultiplier = params.arrivalProbabilityMultiplier / 100;
+
+  // Calculate max theoretical power from all chargepoint types
+  const maxTheoreticalPower = params.chargepoints.reduce(
+    (sum, chargepoint) => sum + chargepoint.count * chargepoint.powerKw,
+    0
+  );
+
+  const chargepoints = params.chargepoints.flatMap((cp) => {
+    return Array.from({ length: cp.count }, () => ({
+      powerKw: cp.powerKw,
+      demand: 0,
+      activeIntervals: 0,
+      chargingEvents: 0,
+      totalEnergy: 0,
+    }));
+  });
+
+  const powerHistory: number[] = [];
+
+  for (let i = 1; i <= totalIntervals; i++) {
+    const hour = ((i * params.intervalMinutes) / 60) % 24;
+
+    for (const chargepoint of chargepoints) {
+      // charging
+      if (chargepoint.demand > 0) {
+        const energyDelivered = Math.min(
+          chargepoint.demand,
+          chargepoint.powerKw * (params.intervalMinutes / 60)
+        );
+        chargepoint.demand -= energyDelivered;
+
+        chargepoint.totalEnergy += energyDelivered;
+        chargepoint.activeIntervals++;
+      }
+      // arrival
+      if (chargepoint.demand > 0) {
+        continue;
+      }
+      const arrival = sampleArrival(
+        hour,
+        params.intervalMinutes,
+        arrivalMultiplier
+      );
+      if (!arrival) {
+        continue;
+      }
+      const energyNeeded = sampleChargingEnergy(params.consumptionKwhPer100km);
+      if (energyNeeded <= 0) {
+        continue;
+      }
+      chargepoint.demand = energyNeeded;
+      chargepoint.chargingEvents++;
+    }
+
+    powerHistory.push(
+      chargepoints.reduce(
+        (sum, chargepoint) =>
+          sum + (chargepoint.demand > 0 ? chargepoint.powerKw : 0),
+        0
+      )
+    );
+  }
+
+  const totalEnergy = chargepoints.reduce(
+    (sum, chargepoint) => sum + chargepoint.totalEnergy,
+    0
+  );
+
+  const maxPower = Math.max(...powerHistory);
+  const concurrencyFactor = maxPower / maxTheoreticalPower;
+
+  // Calculate daily energy history
+  const aggregatedDailyData = calculateDailyData(
+    powerHistory,
+    params.intervalMinutes
+  );
+
+  // Calculate power histogram
+  const powerHistogram: PowerHistogramDataPoint[] = calculatePowerHistogram(
+    maxPower,
+    powerHistory
+  );
+
+  // Calculate chargepoint utilization statistics
+  const chargepointUtilizations: ChargepointUtilization[] =
+    calculateChargepointUtilizations(chargepoints, totalIntervals, totlaDays);
+
+  return {
+    totalEnergyKwh: totalEnergy,
+    maxPowerKw: maxPower,
+    maxTheoreticalPowerKw: maxTheoreticalPower,
+    concurrencyFactor,
+    aggregatedDailyData,
+    powerHistogram,
+    chargepointUtilizations,
+  };
+}
+
+function calculateChargepointUtilizations(
+  chargepoints: {
+    powerKw: number;
+    demand: number;
+    activeIntervals: number;
+    chargingEvents: number;
+    totalEnergy: number;
+  }[],
+  totalIntervals: number,
+  totlaDays: number
+): ChargepointUtilization[] {
+  return chargepoints.map((chargepoint) => {
+    // Utilization: percentage of intervals where at least one chargepoint of this config is active
+    const utilization = (chargepoint.activeIntervals / totalIntervals) * 100;
+
+    // Daily averages
+    const avgDailyEvents = chargepoint.chargingEvents / totlaDays;
+    const avgDailyEnergyKwh = chargepoint.totalEnergy / totlaDays;
+
+    // Monthly averages (approximate: daily * 30)
+    const avgMonthlyEvents = avgDailyEvents * 30;
+    const avgMonthlyEnergyKwh = avgDailyEnergyKwh * 30;
+
+    return {
+      powerKw: chargepoint.powerKw,
+      utilization,
+      avgDailyEvents,
+      avgDailyEnergyKwh,
+      avgMonthlyEvents,
+      avgMonthlyEnergyKwh,
+    };
+  });
+}
+
+function calculatePowerHistogram(
+  maxPower: number,
+  powerHistory: number[]
+): PowerHistogramDataPoint[] {
+  const bins = 20;
+  const binSize = maxPower / bins;
+  const binsCount = new Array(bins).fill(0);
+
+  powerHistory.forEach((power) => {
+    const binIndex = Math.min(Math.floor(power / binSize), bins - 1);
+    binsCount[binIndex]++;
+  });
+
+  const powerHistogram: PowerHistogramDataPoint[] = binsCount.map(
+    (count, index) => ({
+      maxPowerKw: (index + 1) * binSize,
+      count: count,
+      percentage: (count / powerHistory.length) * 100,
+    })
+  );
+  return powerHistogram;
+}
+
+/**
  * Calculates daily energy statistics and interval data from power history.
+ * Note: doesn't consider early stop of charging.
  */
 function calculateDailyData(
   powerHistory: number[],
@@ -91,116 +261,5 @@ function calculateDailyData(
     intervalDataPoints,
     totalIntervals: intervalDataPoints.length,
     intervalMinutes,
-  };
-}
-
-/**
- * Generates mock simulation results based on the provided parameters.
- * This simulates realistic EV charging station behavior.
- */
-export function generateMockResults(
-  params: SimulationParameters
-): SimulationResults {
-  const totalIntervals = Math.ceil(
-    (params.days * 24 * 60) / params.intervalMinutes
-  );
-
-  // Calculate max theoretical power from all chargepoint types
-  const maxTheoreticalPower = params.chargepoints.reduce(
-    (sum, chargepoint) => sum + chargepoint.count * chargepoint.powerKw,
-    0
-  );
-
-  // Create a flat array of chargepoint powers for easier simulation
-  const chargepointPowers: number[] = [];
-  params.chargepoints.forEach((chargepoint) => {
-    for (let i = 0; i < chargepoint.count; i++) {
-      chargepointPowers.push(chargepoint.powerKw);
-    }
-  });
-
-  // Generate power history with realistic patterns
-  const powerHistory: number[] = [];
-  let totalEnergy = 0;
-
-  // Convert multiplier from percentage to factor (100% = 1.0, 200% = 2.0, etc.)
-  const arrivalMultiplier = params.arrivalProbabilityMultiplier / 100;
-
-  for (let i = 0; i < totalIntervals; i++) {
-    const hour = ((i * params.intervalMinutes) / 60) % 24;
-
-    // Simulate daily patterns: higher demand during morning (7-9) and evening (17-20)
-    let baseDemand = 0.3;
-    if (hour >= 7 && hour < 9) {
-      baseDemand = 0.7; // Morning rush
-    } else if (hour >= 17 && hour < 20) {
-      baseDemand = 0.8; // Evening rush
-    } else if (hour >= 22 || hour < 6) {
-      baseDemand = 0.2; // Low demand at night
-    }
-
-    // Apply arrival probability multiplier
-    baseDemand = Math.min(baseDemand * arrivalMultiplier, 1.0);
-
-    // Add some randomness
-    const randomFactor = 0.7 + Math.random() * 0.6; // 0.7 to 1.3
-    const demandFactor = baseDemand * randomFactor;
-
-    // Calculate power demand based on chargepoint utilization
-    // Simulate which chargepoints are in use based on demand factor
-    let powerDemand = 0;
-    const utilizationRate = demandFactor;
-
-    chargepointPowers.forEach((power) => {
-      // Each chargepoint has a chance to be in use based on utilization rate
-      if (Math.random() < utilizationRate) {
-        powerDemand += power;
-      }
-    });
-
-    // Clamp to max theoretical power
-    powerDemand = Math.min(powerDemand, maxTheoreticalPower);
-
-    powerHistory.push(powerDemand);
-
-    // Calculate energy delivered (simplified: power * time in hours)
-    const energyInInterval = powerDemand * (params.intervalMinutes / 60);
-    totalEnergy += energyInInterval;
-  }
-
-  const maxPower = Math.max(...powerHistory);
-  const concurrencyFactor = maxPower / maxTheoreticalPower;
-
-  // Calculate daily energy history
-  const aggregatedDailyData = calculateDailyData(
-    powerHistory,
-    params.intervalMinutes
-  );
-
-  // Calculate power histogram
-  const bins = 20;
-  const binSize = maxTheoreticalPower / bins;
-  const binsCount = new Array(bins).fill(0);
-
-  powerHistory.forEach((power) => {
-    const binIndex = Math.min(Math.floor(power / binSize), bins - 1);
-    binsCount[binIndex]++;
-  });
-
-  const powerHistogram: PowerHistogramDataPoint[] = binsCount.map(
-    (count, index) => ({
-      maxPowerKw: (index + 1) * binSize,
-      count: count,
-      percentage: (count / powerHistory.length) * 100,
-    })
-  );
-
-  return {
-    totalEnergyKwh: totalEnergy,
-    maxPowerKw: maxPower,
-    maxTheoreticalPowerKw: maxTheoreticalPower,
-    concurrencyFactor,
-    aggregatedDailyData,
-    powerHistogram,
   };
 }

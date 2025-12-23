@@ -2,6 +2,7 @@ import { SimulationResults } from "../types";
 import { StatisticsDisplay } from "./StatisticsDisplay";
 import { AggregatedDailyDataChart } from "./AggregatedDailyDataChart";
 import { PowerDistributionChart } from "./PowerDistributionChart";
+import { ChargepointUtilizationDisplay } from "./ChargepointUtilizationDisplay";
 
 type DashboardProps = {
   results: SimulationResults | null;
@@ -17,6 +18,7 @@ export const Dashboard = ({ results }: DashboardProps) => {
       <StatisticsDisplay results={results} />
       <AggregatedDailyDataChart results={results} />
       <PowerDistributionChart results={results} />
+      <ChargepointUtilizationDisplay results={results} />
     </>
   );
 };

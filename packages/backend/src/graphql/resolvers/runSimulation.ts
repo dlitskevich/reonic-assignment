@@ -1,4 +1,4 @@
-import { generateMockResults } from "../../utils/simulation.js";
+import { generateResults } from "../../utils/simulation.js";
 import { SimulationParameters } from "../../utils/types.js";
 import type { Context } from "../resolvers.js";
 
@@ -96,7 +96,7 @@ export async function runSimulation(
     arrivalProbabilityMultiplier: args.input.arrivalProbabilityMultiplier,
   };
 
-  const results = generateMockResults(simulationParams);
+  const results = generateResults(simulationParams);
 
   // Save results to database
   const savedResult = await context.prisma.simulationResult.create({
@@ -143,6 +143,18 @@ export async function runSimulation(
           percentage: point.percentage,
         })),
       },
+      chargepointUtilizations: {
+        create: results.chargepointUtilizations.map((util) => {
+          return {
+            powerKw: util.powerKw,
+            utilization: util.utilization,
+            avgDailyEvents: util.avgDailyEvents,
+            avgDailyEnergyKwh: util.avgDailyEnergyKwh,
+            avgMonthlyEvents: util.avgMonthlyEvents,
+            avgMonthlyEnergyKwh: util.avgMonthlyEnergyKwh,
+          };
+        }),
+      },
     },
     include: {
       aggregatedDailyData: {
@@ -152,6 +164,7 @@ export async function runSimulation(
         },
       },
       powerHistogramDataPoints: true,
+      chargepointUtilizations: true,
     },
   });
 
@@ -189,6 +202,16 @@ export async function runSimulation(
       count: point.count,
       percentage: point.percentage,
     })),
+    chargepointUtilizations: savedResult.chargepointUtilizations.map(
+      (util) => ({
+        powerKw: util.powerKw,
+        utilization: util.utilization,
+        avgDailyEvents: util.avgDailyEvents,
+        avgDailyEnergyKwh: util.avgDailyEnergyKwh,
+        avgMonthlyEvents: util.avgMonthlyEvents,
+        avgMonthlyEnergyKwh: util.avgMonthlyEnergyKwh,
+      })
+    ),
     createdAt: savedResult.createdAt.toISOString(),
     updatedAt: savedResult.updatedAt.toISOString(),
   };
