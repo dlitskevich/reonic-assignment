@@ -1,6 +1,6 @@
 """Chargepoint model for EV charging simulation."""
 
-from src.vehicle import Vehicle
+from .vehicle import Vehicle
 
 
 class Chargepoint:

@@ -41,6 +41,12 @@ def main():
         default=365,
         help="Number of days to simulate (default: 365)",
     )
+    parser.add_argument(
+        "--arrival-multiplier",
+        type=float,
+        default=1,
+        help="Multiplier for the arrival probability (default: 1)",
+    )
 
     args = parser.parse_args()
 
@@ -49,6 +55,7 @@ def main():
     print(f"  Power: {args.power} kW per chargepoint")
     print(f"  Consumption: {args.consumption} kWh/100km")
     print(f"  Duration: {args.days} days")
+    print(f"  Arrival multiplier: {args.arrival_multiplier}")
     print()
 
     simulator = Simulator(
@@ -56,6 +63,7 @@ def main():
         power_per_chargepoint_kw=args.power,
         consumption_kwh_per_100km=args.consumption,
         days=args.days,
+        arrival_multiplier=args.arrival_multiplier,
     )
 
     results = simulator.run()

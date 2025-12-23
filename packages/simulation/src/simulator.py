@@ -3,9 +3,9 @@
 from math import ceil
 from typing import Dict, List
 
-from src.chargepoint import Chargepoint
-from src.vehicle import Vehicle
-from src.distributions import sample_arrival, sample_charging_energy
+from .chargepoint import Chargepoint
+from .vehicle import Vehicle
+from .distributions import sample_arrival, sample_charging_energy
 
 
 class Simulator:
@@ -18,6 +18,7 @@ class Simulator:
         consumption_kwh_per_100km: float = 18.0,
         days: int = 365,
         interval_minutes: int = 15,
+        arrival_multiplier: float = 1,
     ):
         """
         Initialize the simulator.
@@ -33,7 +34,10 @@ class Simulator:
         self.power_per_chargepoint_kw = power_per_chargepoint_kw
         self.consumption_kwh_per_100km = consumption_kwh_per_100km
         self.days = days
+        if interval_minutes > 60:
+            raise ValueError("Interval minutes must be less than or equal to 60")
         self.interval_minutes = interval_minutes
+        self.arrival_multiplier = arrival_multiplier
 
         self.chargepoints = [
             Chargepoint(power_per_chargepoint_kw) for _ in range(num_chargepoints)
@@ -50,17 +54,14 @@ class Simulator:
         """
         total_intervals = ceil((self.days * 24 * 60) / self.interval_minutes)
 
-        # Add one extra interval to account for the last interval (we start from 0 for the first interval set up)
-        for interval_idx in range(total_intervals + 1):
+        # at 0th interval, we do not have any arrivals
+        for interval_idx in range(1, total_intervals + 1):
             # Determine hour of day for arrival probability
             hour = ((interval_idx * self.interval_minutes) // 60) % 24
 
             # Perform charging step for all chargepoints
             interval_energy = self._charge_step()
-            # self._arrival_step(hour) # according to the description, that is not the case
-            self._arrival_each_chargepoint_step(
-                hour
-            )  # models arrival for each chargepoint independently
+            self._arrival_step(hour)
             power_demand = 0
             for chargepoint in self.chargepoints:
                 if chargepoint.is_charging():
@@ -103,31 +104,40 @@ class Simulator:
 
     def _arrival_step(self, hour: int) -> float:
         """
-        Perform one arrival step for all chargepoints.
-        """
-        if not sample_arrival(hour):
-            return
-
-        energy_needed = sample_charging_energy(self.consumption_kwh_per_100km)
-
-        if energy_needed == 0:
-            return
-
-        chargepoint = next((c for c in self.chargepoints if c.vehicle is None), None)
-
-        if chargepoint is None:
-            return
-        chargepoint.vehicle = Vehicle(energy_needed)
-
-    def _arrival_each_chargepoint_step(self, hour: int) -> float:
-        """
         Perform one arrival step for each chargepoint.
         """
         for chargepoint in self.chargepoints:
-            if chargepoint.vehicle is None:
-                if sample_arrival(hour):
-                    energy_needed = sample_charging_energy(
-                        self.consumption_kwh_per_100km
-                    )
-                    if energy_needed > 0:
-                        chargepoint.vehicle = Vehicle(energy_needed)
+            if chargepoint.vehicle is not None:
+                continue
+
+            if not sample_arrival(hour, self.interval_minutes, self.arrival_multiplier):
+                continue
+
+            energy_needed = sample_charging_energy(self.consumption_kwh_per_100km)
+            if energy_needed <= 0:
+                continue
+
+            chargepoint.vehicle = Vehicle(energy_needed)
+
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
+    energies = []
+    concurrency_factors = []
+    N = 100
+    for i in range(N):
+        print(f"Running simulation {i + 1} of {N}")
+        simulator = Simulator()
+        results = simulator.run()
+        energies.append(results["total_energy_kwh"])
+        concurrency_factors.append(results["concurrency_factor"])
+    plt.figure(figsize=(10, 5))
+    plt.subplot(1, 2, 1)
+    plt.hist(energies)
+    plt.xlabel("Energy")
+    plt.subplot(1, 2, 2)
+    plt.hist(concurrency_factors)
+    plt.xlabel("Concurrency factor")
+    plt.tight_layout()
+    plt.show()
