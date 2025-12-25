@@ -43,7 +43,7 @@ python3 main.py
 Run with custom parameters:
 
 ```bash
-python3 main.py --chargepoints 20 --power 11.0 --consumption 18.0 --days 365 --arrival-multiplier 1
+python3 main.py --chargepoints 20 --power 11.0 --consumption 18.0 --days 365 --arrival-multiplier 1 --interval-minutes 15
 ```
 
 **Arguments:**
@@ -53,6 +53,7 @@ python3 main.py --chargepoints 20 --power 11.0 --consumption 18.0 --days 365 --a
 - `--consumption`: Vehicle consumption in kWh per 100km (default: 18.0)
 - `--days`: Number of days to simulate (default: 365)
 - `--arrival-multiplier`: Multiplier for the arrival probability (default: 1)
+- `--interval-minutes`: Interval minutes (default: 15)
 
 #### Output
 

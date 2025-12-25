@@ -71,6 +71,18 @@ pip3 install -e .
 python3 main.py
 ```
 
+## Quick Start Rust Simulation (Task 1)
+
+Note: Rust simulation is faster than Python simulation ~40 times.
+
+```bash
+cd packages/simulation-rust
+# Install the dependencies
+cargo build --release
+# Run the simulation
+cargo run --release
+```
+
 ## Quick Start Backend and Frontend (Tasks 2a and 2b)
 
 ### 1. Clone and Install Dependencies
@@ -126,7 +138,8 @@ reonic_assignment/
 │   │   ├── simulation/      # Core simulation logic
 │   │   ├── main.py          # CLI entry point
 │   │   └── concurrency_factor.py  # Bonus: concurrency analysis
-│   │
+│   ├── simulation-rust/     # Rust simulation engine (Task 1)
+│   │   └── src/             # Rust source code
 │   ├── backend/             # Node.js GraphQL API (Task 2b)
 │   │   ├── src/
 │   │   │   ├── graphql/     # GraphQL schema and resolvers
