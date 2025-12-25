@@ -63,7 +63,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="h-screen bg-gray-100 flex">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)}>
         <ParameterInput
@@ -75,7 +75,7 @@ function App() {
       </Sidebar>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col lg:ml-0">
+      <div className="flex-1 flex flex-col lg:ml-0 w-full">
         {/* Mobile header with menu button */}
         <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
           <h1 className="text-xl font-bold text-gray-800">
@@ -101,7 +101,7 @@ function App() {
         </header>
 
         {/* Content area */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <main className="flex-1 overflow-y-auto p-0 lg:p-6 sm:p-4">
           <div className="max-w-7xl mx-auto space-y-6">
             <Dashboard results={results} />
           </div>

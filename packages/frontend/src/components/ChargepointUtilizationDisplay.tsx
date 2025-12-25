@@ -92,22 +92,22 @@ const UtilizationTable = ({
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Power (kW)
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Utilization
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Daily Events
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Daily Energy
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Monthly Events
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Monthly Energy
             </th>
           </tr>
@@ -118,14 +118,14 @@ const UtilizationTable = ({
               key={index}
               className="hover:bg-gray-50 transition-colors duration-150"
             >
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
                 <div className="text-sm font-semibold text-gray-900">
                   {util.powerKw.toFixed(1)} kW
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-[80px]">
                     <div className="text-sm font-medium text-gray-900">
                       {util.utilization.toFixed(1)}%
                     </div>
@@ -140,22 +140,22 @@ const UtilizationTable = ({
                   </div>
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
                   {util.avgDailyEvents.toFixed(1)}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
                   {util.avgDailyEnergyKwh.toFixed(1)} kWh
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
                   {util.avgMonthlyEvents.toFixed(0)}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
                   {util.avgMonthlyEnergyKwh.toFixed(0)} kWh
                 </div>
