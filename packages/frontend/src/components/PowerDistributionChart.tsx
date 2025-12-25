@@ -8,7 +8,10 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { PowerHistogramDataPoint, SimulationResults } from "../types";
+import { RunSimulationMutation } from "../types/__generated__/graphql";
+
+type PowerHistogramDataPoint =
+  RunSimulationMutation["runSimulation"]["powerHistogram"][number];
 
 const CustomTooltip = ({
   active,
@@ -43,7 +46,7 @@ const CustomTooltip = ({
 };
 
 type PowerDistributionChartProps = {
-  results: SimulationResults;
+  results: RunSimulationMutation["runSimulation"];
 };
 
 export const PowerDistributionChart = ({

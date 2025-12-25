@@ -36,6 +36,14 @@ pnpm dev:frontend
 
 The application will be available at `http://localhost:5173` (Vite's default port).
 
+4. **Generate GraphQL types**:
+
+```bash
+pnpm codegen
+```
+
+This will generate the GraphQL types in the `src/types` directory.
+
 ## Tech Stack
 
 - **React 18** - UI library with hooks
@@ -44,6 +52,7 @@ The application will be available at `http://localhost:5173` (Vite's default por
 - **Vite** - Fast build tool and dev server
 - **Apollo Client** - GraphQL client for data fetching
 - **Recharts** - Charting library for visualizations
+- **GraphQL Code Generator** - Generate GraphQL types from schema
 
 ## Project Structure
 
@@ -53,7 +62,7 @@ packages/frontend/
 │   ├── App.tsx                        # Main application component
 │   ├── main.tsx                       # Application entry point
 │   ├── index.css                      # Global styles
-│   ├── types.ts                       # TypeScript type definitions
+│   ├── types/__generated__/graphql.ts # GraphQL types
 │   ├── apollo/
 │   │   └── client.ts                  # Apollo Client configuration
 │   ├── components/

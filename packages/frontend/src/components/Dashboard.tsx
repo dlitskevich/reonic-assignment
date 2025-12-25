@@ -1,11 +1,11 @@
-import { SimulationResults } from "../types";
 import { StatisticsDisplay } from "./StatisticsDisplay";
 import { AggregatedDailyDataChart } from "./AggregatedDailyDataChart";
 import { PowerDistributionChart } from "./PowerDistributionChart";
 import { ChargepointUtilizationDisplay } from "./ChargepointUtilizationDisplay";
+import { RunSimulationMutation } from "@/types/__generated__/graphql";
 
 type DashboardProps = {
-  results: SimulationResults | null;
+  results: RunSimulationMutation["runSimulation"] | null;
 };
 
 export const Dashboard = ({ results }: DashboardProps) => {

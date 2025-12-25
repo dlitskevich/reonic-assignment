@@ -1,3 +1,4 @@
+import { RunSimulationMutation } from "../types/__generated__/graphql";
 import {
   LineChart,
   Line,
@@ -8,10 +9,9 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { SimulationResults } from "../types";
 
 type AggregatedDailyDataChartProps = {
-  results: SimulationResults;
+  results: RunSimulationMutation["runSimulation"];
 };
 
 export const AggregatedDailyDataChart = ({

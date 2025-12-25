@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "@apollo/client": "^4.0.10",
@@ -19,6 +20,9 @@
     "recharts": "^3.5.1"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^6.1.0",
+    "@graphql-codegen/typescript": "^5.0.7",
+    "@graphql-codegen/typescript-operations": "^5.0.7",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",

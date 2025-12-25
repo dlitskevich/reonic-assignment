@@ -1,7 +1,10 @@
-import { ChargepointUtilization, SimulationResults } from "../types";
+import { RunSimulationMutation } from "../types/__generated__/graphql";
+
+type ChargepointUtilization =
+  RunSimulationMutation["runSimulation"]["chargepointUtilizations"][number];
 
 interface ChargepointUtilizationDisplayProps {
-  results: SimulationResults;
+  results: RunSimulationMutation["runSimulation"];
 }
 
 export const ChargepointUtilizationDisplay = ({

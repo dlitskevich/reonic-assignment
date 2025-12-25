@@ -1,10 +1,13 @@
-import { ChargepointConfig, SimulationParameters } from "../types";
+import {
+  ChargepointConfigInput,
+  SimulationParameterInput,
+} from "../types/__generated__/graphql";
 import { ChargepointConfigSection } from "./ChargepointConfig";
 import { RangeSlider } from "./RangeSlider/RangeSlider";
 
 interface ParameterInputProps {
-  parameters: SimulationParameters;
-  onParametersChange: (params: SimulationParameters) => void;
+  parameters: SimulationParameterInput;
+  onParametersChange: (params: SimulationParameterInput) => void;
   onRunSimulation: () => void;
   isRunning?: boolean;
 }
@@ -15,14 +18,17 @@ export const ParameterInput = ({
   onRunSimulation,
   isRunning = false,
 }: ParameterInputProps) => {
-  const handleChange = (field: keyof SimulationParameters, value: number) => {
+  const handleChange = (
+    field: keyof SimulationParameterInput,
+    value: number
+  ) => {
     onParametersChange({
       ...parameters,
       [field]: value,
     });
   };
 
-  const handleChargepointsChange = (chargepoints: ChargepointConfig[]) => {
+  const handleChargepointsChange = (chargepoints: ChargepointConfigInput[]) => {
     onParametersChange({
       ...parameters,
       chargepoints,

@@ -1,7 +1,7 @@
-import { SimulationResults } from "../types";
+import { RunSimulationMutation } from "../types/__generated__/graphql";
 
 interface StatisticsDisplayProps {
-  results: SimulationResults;
+  results: RunSimulationMutation["runSimulation"];
 }
 
 export const StatisticsDisplay = ({ results }: StatisticsDisplayProps) => {

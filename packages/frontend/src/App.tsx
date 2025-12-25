@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { ParameterInput } from "./components/ParameterInput";
 import { Sidebar } from "./components/Sidebar";
-import { SimulationParameters, SimulationResults } from "./types";
+import {
+  SimulationParameterInput,
+  RunSimulationMutation,
+} from "./types/__generated__/graphql";
 import { useRunSimulation } from "./graphql/useRunSimulation";
 import {
   deserializeParametersFromUrl,
@@ -13,11 +16,13 @@ import { Dashboard } from "./components/Dashboard";
 
 function App() {
   // Initialize parameters from URL or use defaults
-  const [parameters, setParameters] = useState<SimulationParameters>(() => {
+  const [parameters, setParameters] = useState<SimulationParameterInput>(() => {
     const urlParams = deserializeParametersFromUrl();
     return urlParams || DEFAULT_SIMULATION_PARAMETERS;
   });
-  const [results, setResults] = useState<SimulationResults | null>(null);
+  const [results, setResults] = useState<
+    RunSimulationMutation["runSimulation"] | null
+  >(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { runSimulation, loading: isRunning } = useRunSimulation();
 

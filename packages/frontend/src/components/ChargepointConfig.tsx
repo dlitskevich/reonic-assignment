@@ -1,8 +1,8 @@
-import { ChargepointConfig } from "../types";
+import { ChargepointConfigInput } from "../types/__generated__/graphql";
 
 type ChargepointConfigProps = {
-  chargepoints: ChargepointConfig[];
-  onChargepointsChange: (chargepoints: ChargepointConfig[]) => void;
+  chargepoints: ChargepointConfigInput[];
+  onChargepointsChange: (chargepoints: ChargepointConfigInput[]) => void;
   isRunning?: boolean;
 };
 
@@ -23,7 +23,7 @@ export const ChargepointConfigSection = ({
 
   const updateChargepoint = (
     index: number,
-    field: keyof ChargepointConfig,
+    field: keyof ChargepointConfigInput,
     value: number
   ) => {
     const updated = [...chargepoints];

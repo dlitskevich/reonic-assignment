@@ -1,8 +1,10 @@
+import {
+  RunSimulationMutation,
+  RunSimulationMutationVariables,
+  SimulationParameterInput,
+} from "@/types/__generated__/graphql";
 import { gql } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
-import { SimulationParameters, SimulationResults } from "../types";
-
-type GraphQLSimulationResult = SimulationResults;
 
 const RUN_SIMULATION_MUTATION = gql`
   mutation RunSimulation($input: SimulationParameterInput!) {
@@ -44,26 +46,18 @@ const RUN_SIMULATION_MUTATION = gql`
   }
 `;
 
-interface RunSimulationMutationVariables {
-  input: SimulationParameters;
-}
-
-interface RunSimulationMutationData {
-  runSimulation: GraphQLSimulationResult;
-}
-
 /**
  * Hook for running a simulation via GraphQL mutation
  */
 export function useRunSimulation() {
   const [mutate, { loading, error }] = useMutation<
-    RunSimulationMutationData,
+    RunSimulationMutation,
     RunSimulationMutationVariables
   >(RUN_SIMULATION_MUTATION);
 
   const runSimulation = async (
-    parameters: SimulationParameters
-  ): Promise<SimulationResults> => {
+    parameters: SimulationParameterInput
+  ): Promise<RunSimulationMutation["runSimulation"]> => {
     const result = await mutate({
       variables: {
         input: parameters,
