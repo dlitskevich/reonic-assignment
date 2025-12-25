@@ -49,5 +49,4 @@ def test_simulator_power_history():
     assert "power_history" in results
     assert len(results["power_history"]) > 0
     intervals_per_day = (24 * 60) // 15  # 96 intervals per day
-    # Simulator adds one extra interval (total_intervals + 1)
-    assert len(results["power_history"]) == intervals_per_day + 1
+    assert len(results["power_history"]) == intervals_per_day
