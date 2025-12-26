@@ -25,6 +25,7 @@
 For detailed documentation, see individual package READMEs:
 
 - [`packages/simulation/README.md`](packages/simulation/README.md) - Simulation engine details
+- [`packages/simulation-rust/README.md`](packages/simulation-rust/README.md) - Rust simulation engine details
 - [`packages/backend/README.md`](packages/backend/README.md) - API documentation and schema
 - [`packages/frontend/README.md`](packages/frontend/README.md) - Frontend components and usage
 
