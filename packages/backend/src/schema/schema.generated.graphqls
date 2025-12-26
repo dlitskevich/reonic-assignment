@@ -1,0 +1,109 @@
+type AggregatedDailyData {
+  dailyStats: DailyStats
+  intervalDataPoints: [IntervalDataPoint!]!
+  intervalMinutes: Int!
+  totalIntervals: Int!
+}
+
+type AggregatedDailyDataInput {
+  dailyStats: DailyStats!
+  intervalDataPoints: [IntervalDataPoint!]!
+  intervalMinutes: Int!
+  totalIntervals: Int!
+}
+
+type ChargepointConfig {
+  count: Int!
+  powerKw: Float!
+}
+
+input ChargepointConfigInput {
+  count: Int!
+  powerKw: Float!
+}
+
+type ChargepointUtilization {
+  avgDailyEnergyKwh: Float!
+  avgDailyEvents: Float!
+  avgMonthlyEnergyKwh: Float!
+  avgMonthlyEvents: Float!
+  powerKw: Float!
+  utilization: Float!
+}
+
+type DailyStats {
+  avg: Float!
+  max: Float!
+  min: Float!
+}
+
+type IntervalDataPoint {
+  avg: Float!
+  interval: Int!
+  max: Float!
+  min: Float!
+  time: String!
+}
+
+type Mutation {
+  createSimulationParameter(input: SimulationParameterInput!): SimulationParameter!
+  deleteSimulationParameter(id: Int!): Boolean!
+  runSimulation(input: SimulationParameterInput!): SimulationResult!
+  updateSimulationParameter(id: Int!, input: SimulationParameterInput!): SimulationParameter!
+}
+
+type PowerHistogramDataPoint {
+  count: Int!
+  maxPowerKw: Float!
+  percentage: Float!
+}
+
+type Query {
+  hello: String
+  simulationParameter(id: Int!): SimulationParameter
+  simulationParameters: [SimulationParameter!]!
+}
+
+type SimulationParameter {
+  arrivalProbabilityMultiplier: Int!
+  chargepoints: [ChargepointConfig!]!
+  consumptionKwhPer100km: Float!
+  createdAt: String!
+  days: Int!
+  id: Int!
+  intervalMinutes: Int!
+  updatedAt: String!
+}
+
+input SimulationParameterInput {
+  arrivalProbabilityMultiplier: Int!
+  chargepoints: [ChargepointConfigInput!]!
+  consumptionKwhPer100km: Float!
+  days: Int!
+  intervalMinutes: Int!
+}
+
+type SimulationResult {
+  aggregatedDailyData: AggregatedDailyData
+  chargepointUtilizations: [ChargepointUtilization!]!
+  concurrencyFactor: Float!
+  createdAt: String!
+  id: Int!
+  maxPowerKw: Float!
+  maxTheoreticalPowerKw: Float!
+  powerHistogram: [PowerHistogramDataPoint!]!
+  simulationParameterId: Int
+  totalEnergyKwh: Float!
+  updatedAt: String!
+}
+
+type SimulationResultInput {
+  aggregatedDailyData: AggregatedDailyDataInput!
+  chargepointUtilizations: [ChargepointUtilization!]!
+  concurrencyFactor: Float!
+  maxPowerKw: Float!
+  maxTheoreticalPowerKw: Float!
+  powerHistogram: [PowerHistogramDataPoint!]!
+  simulationParameterId: Int
+  totalEnergyKwh: Float!
+}

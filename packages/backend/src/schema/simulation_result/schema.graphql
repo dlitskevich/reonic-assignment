@@ -1,0 +1,71 @@
+extend type Mutation {
+  runSimulation(input: SimulationParameterInput!): SimulationResult!
+}
+
+type SimulationResult {
+  id: Int!
+  totalEnergyKwh: Float!
+  maxPowerKw: Float!
+  maxTheoreticalPowerKw: Float!
+  concurrencyFactor: Float!
+  aggregatedDailyData: AggregatedDailyData
+  powerHistogram: [PowerHistogramDataPoint!]!
+  chargepointUtilizations: [ChargepointUtilization!]!
+  simulationParameterId: Int
+  createdAt: String!
+  updatedAt: String!
+}
+
+type SimulationResultInput {
+  totalEnergyKwh: Float!
+  maxPowerKw: Float!
+  maxTheoreticalPowerKw: Float!
+  concurrencyFactor: Float!
+  aggregatedDailyData: AggregatedDailyDataInput!
+  powerHistogram: [PowerHistogramDataPoint!]!
+  chargepointUtilizations: [ChargepointUtilization!]!
+  simulationParameterId: Int
+}
+
+type ChargepointUtilization {
+  powerKw: Float!
+  utilization: Float!
+  avgDailyEvents: Float!
+  avgDailyEnergyKwh: Float!
+  avgMonthlyEvents: Float!
+  avgMonthlyEnergyKwh: Float!
+}
+
+type AggregatedDailyData {
+  dailyStats: DailyStats
+  intervalDataPoints: [IntervalDataPoint!]!
+  totalIntervals: Int!
+  intervalMinutes: Int!
+}
+
+type AggregatedDailyDataInput {
+  dailyStats: DailyStats!
+  intervalDataPoints: [IntervalDataPoint!]!
+  totalIntervals: Int!
+  intervalMinutes: Int!
+}
+
+type DailyStats {
+  avg: Float!
+  max: Float!
+  min: Float!
+}
+
+type IntervalDataPoint {
+  interval: Int!
+  time: String!
+  avg: Float!
+  max: Float!
+  min: Float!
+}
+
+type PowerHistogramDataPoint {
+  maxPowerKw: Float!
+  count: Int!
+  percentage: Float!
+}

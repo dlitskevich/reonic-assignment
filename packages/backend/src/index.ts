@@ -6,9 +6,12 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
 import * as dotenv from "dotenv";
 
-import { typeDefs } from "./graphql/typeDefs.js";
-import { resolvers, type Context } from "./graphql/resolvers.js";
+import { typeDefs } from "./schema/typeDefs.generated";
+import { resolvers } from "./schema/resolvers.generated";
 
+interface Context {
+  prisma: PrismaClient;
+}
 // Load environment variables
 dotenv.config();
 

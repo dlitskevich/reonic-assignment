@@ -1,19 +1,19 @@
 import { sampleArrival, sampleChargingEnergy } from "./distributions";
 import {
-  SimulationParameters,
-  SimulationResults,
+  SimulationParameterInput,
+  SimulationResultInput,
   PowerHistogramDataPoint,
-  AggregatedDailyData,
+  AggregatedDailyDataInput,
   IntervalDataPoint,
   ChargepointUtilization,
-} from "./types";
+} from "../schema/types.generated";
 
 /**
  * Generates simulation results based on the provided parameters.
  */
 export function generateResults(
-  params: SimulationParameters
-): SimulationResults {
+  params: SimulationParameterInput
+): SimulationResultInput {
   const totalIntervals = Math.ceil(
     (params.days * 24 * 60) / params.intervalMinutes
   );
@@ -182,7 +182,7 @@ function calculatePowerHistogram(
 function calculateDailyData(
   powerHistory: number[],
   intervalMinutes: number
-): AggregatedDailyData {
+): AggregatedDailyDataInput {
   const intervalsPerDay = (24 * 60) / intervalMinutes;
   const days = Math.ceil(powerHistory.length / intervalsPerDay);
   const dailyEnergies: number[] = [];

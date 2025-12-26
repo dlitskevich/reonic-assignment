@@ -1,0 +1,44 @@
+extend type Query {
+  simulationParameters: [SimulationParameter!]!
+  simulationParameter(id: Int!): SimulationParameter
+}
+
+extend type Mutation {
+  createSimulationParameter(
+    input: SimulationParameterInput!
+  ): SimulationParameter!
+  updateSimulationParameter(
+    id: Int!
+    input: SimulationParameterInput!
+  ): SimulationParameter!
+  deleteSimulationParameter(id: Int!): Boolean!
+}
+
+type ChargepointConfig {
+  count: Int!
+  powerKw: Float!
+}
+
+type SimulationParameter {
+  id: Int!
+  chargepoints: [ChargepointConfig!]!
+  consumptionKwhPer100km: Float!
+  days: Int!
+  intervalMinutes: Int!
+  arrivalProbabilityMultiplier: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+input ChargepointConfigInput {
+  count: Int!
+  powerKw: Float!
+}
+
+input SimulationParameterInput {
+  chargepoints: [ChargepointConfigInput!]!
+  consumptionKwhPer100km: Float!
+  days: Int!
+  intervalMinutes: Int!
+  arrivalProbabilityMultiplier: Int!
+}

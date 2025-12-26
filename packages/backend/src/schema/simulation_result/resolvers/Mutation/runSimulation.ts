@@ -1,58 +1,24 @@
-import { generateResults } from "../../utils/simulation.js";
-import { SimulationParameters } from "../../utils/types.js";
-import type { Context } from "../resolvers.js";
+import { PrismaClient } from "generated/prisma/client";
+import type {
+  ChargepointConfigInput,
+  MutationResolvers,
+  SimulationParameterInput,
+} from "@/schema/types.generated";
+import { generateResults } from "@/utils/simulation";
 
-interface ChargepointConfigInput {
-  count: number;
-  powerKw: number;
+interface Context {
+  prisma: PrismaClient;
 }
 
-interface SimulationParameterInput {
-  chargepoints: ChargepointConfigInput[];
-  consumptionKwhPer100km: number;
-  days: number;
-  intervalMinutes: number;
-  arrivalProbabilityMultiplier: number;
-}
-
-/**
- * Helper to compare chargepoints (order doesn't matter)
- */
-function compareChargepoints(
-  cp1: ChargepointConfigInput[],
-  cp2: ChargepointConfigInput[]
-): boolean {
-  const sorted1 = [...cp1].sort((a, b) => {
-    if (a.powerKw !== b.powerKw) return a.powerKw - b.powerKw;
-    return a.count - b.count;
-  });
-  const sorted2 = [...cp2].sort((a, b) => {
-    if (a.powerKw !== b.powerKw) return a.powerKw - b.powerKw;
-    return a.count - b.count;
-  });
-  if (sorted1.length !== sorted2.length) return false;
-  return sorted1.every(
-    (cp, i) =>
-      cp.count === sorted2[i].count && cp.powerKw === sorted2[i].powerKw
-  );
-}
-
-/**
- * Run simulation resolver
- */
-export async function runSimulation(
-  _parent: unknown,
-  args: { input: SimulationParameterInput },
-  context: Context
-) {
+export const runSimulation: NonNullable<MutationResolvers['runSimulation']> = async (_parent, { input }, context: Context) => {
   // Check if parameters already exist by querying with filters first
   // This is more efficient than fetching all parameters
   const candidates = await context.prisma.simulationParameter.findMany({
     where: {
-      consumptionKwhPer100km: args.input.consumptionKwhPer100km,
-      days: args.input.days,
-      intervalMinutes: args.input.intervalMinutes,
-      arrivalProbabilityMultiplier: args.input.arrivalProbabilityMultiplier,
+      consumptionKwhPer100km: input.consumptionKwhPer100km,
+      days: input.days,
+      intervalMinutes: input.intervalMinutes,
+      arrivalProbabilityMultiplier: input.arrivalProbabilityMultiplier,
     },
     include: { chargepoints: true },
   });
@@ -61,7 +27,7 @@ export async function runSimulation(
   // Chargepoint comparison still needs to be done in memory since Prisma
   // doesn't support deep nested array comparisons
   let existingParam = candidates.find((param) =>
-    compareChargepoints(args.input.chargepoints, param.chargepoints)
+    compareChargepoints(input.chargepoints, param.chargepoints)
   );
 
   let simulationParameterId: number;
@@ -73,27 +39,27 @@ export async function runSimulation(
     const created = await context.prisma.simulationParameter.create({
       data: {
         chargepoints: {
-          create: args.input.chargepoints.map((cp) => ({
+          create: input.chargepoints.map((cp) => ({
             count: cp.count,
             powerKw: cp.powerKw,
           })),
         },
-        consumptionKwhPer100km: args.input.consumptionKwhPer100km,
-        days: args.input.days,
-        intervalMinutes: args.input.intervalMinutes,
-        arrivalProbabilityMultiplier: args.input.arrivalProbabilityMultiplier,
+        consumptionKwhPer100km: input.consumptionKwhPer100km,
+        days: input.days,
+        intervalMinutes: input.intervalMinutes,
+        arrivalProbabilityMultiplier: input.arrivalProbabilityMultiplier,
       },
     });
     simulationParameterId = created.id;
   }
 
   // Run mock simulation
-  const simulationParams: SimulationParameters = {
-    chargepoints: args.input.chargepoints,
-    consumptionKwhPer100km: args.input.consumptionKwhPer100km,
-    days: args.input.days,
-    intervalMinutes: args.input.intervalMinutes,
-    arrivalProbabilityMultiplier: args.input.arrivalProbabilityMultiplier,
+  const simulationParams: SimulationParameterInput = {
+    chargepoints: input.chargepoints,
+    consumptionKwhPer100km: input.consumptionKwhPer100km,
+    days: input.days,
+    intervalMinutes: input.intervalMinutes,
+    arrivalProbabilityMultiplier: input.arrivalProbabilityMultiplier,
   };
 
   const results = generateResults(simulationParams);
@@ -215,4 +181,26 @@ export async function runSimulation(
     createdAt: savedResult.createdAt.toISOString(),
     updatedAt: savedResult.updatedAt.toISOString(),
   };
+};
+
+/**
+ * Helper to compare chargepoints (order doesn't matter)
+ */
+function compareChargepoints(
+  cp1: ChargepointConfigInput[],
+  cp2: ChargepointConfigInput[]
+): boolean {
+  const sorted1 = [...cp1].sort((a, b) => {
+    if (a.powerKw !== b.powerKw) return a.powerKw - b.powerKw;
+    return a.count - b.count;
+  });
+  const sorted2 = [...cp2].sort((a, b) => {
+    if (a.powerKw !== b.powerKw) return a.powerKw - b.powerKw;
+    return a.count - b.count;
+  });
+  if (sorted1.length !== sorted2.length) return false;
+  return sorted1.every(
+    (cp, i) =>
+      cp.count === sorted2[i].count && cp.powerKw === sorted2[i].powerKw
+  );
 }

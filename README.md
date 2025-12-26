@@ -35,6 +35,8 @@ For detailed documentation, see individual package READMEs:
 - Python 3.14+
 - NumPy, Matplotlib
 
+- Rust
+
 **Backend:**
 
 - Node.js 24+
@@ -43,6 +45,7 @@ For detailed documentation, see individual package READMEs:
 - Apollo Server (GraphQL)
 - Prisma ORM
 - PostgreSQL
+- GraphQL Code Generator
 
 **Frontend:**
 
@@ -52,6 +55,7 @@ For detailed documentation, see individual package READMEs:
 - Apollo Client
 - Recharts
 - Vite
+- GraphQL Code Generator
 
 ## Prerequisites
 

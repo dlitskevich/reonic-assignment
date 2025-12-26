@@ -49,12 +49,21 @@ pnpm dev
 
 The server will start on `http://localhost:4000` and GraphQL endpoint will be available at `http://localhost:4000/graphql`.
 
+5. **Generate GraphQL types**:
+
+```bash
+pnpm codegen
+```
+
+This will generate the GraphQL types in the `src/schema/types.generated.ts` file.
+
 ## Scripts
 
 - `pnpm dev` - Start development server with hot reload (using `tsx watch`)
 - `pnpm prisma:generate` - Generate Prisma Client from schema
 - `pnpm prisma:migrate` - Run database migrations (development mode)
 - `pnpm prisma:studio` - Open Prisma Studio (database GUI for browsing data)
+- `pnpm codegen` - Generate GraphQL types from schema
 
 ## Project Structure
 
@@ -62,14 +71,10 @@ The server will start on `http://localhost:4000` and GraphQL endpoint will be av
 packages/backend/
 ├── src/
 │   ├── index.ts                    # Express server entry point
-│   ├── graphql/
-│   │   ├── typeDefs.ts            # GraphQL schema definitions
-│   │   ├── resolvers.ts           # GraphQL resolvers entry point
-│   │   └── resolvers/
-│   │       └── runSimulation.ts   # Simulation mutation resolver
-│   └── utils/
-│       ├── simulation.ts          # Mock simulation logic
-│       └── types.ts               # Shared TypeScript types
+│   ├── schema/
+│   │   ├── typeDefs.generated.ts  # GraphQL schema definitions
+│   │   ├── resolvers.generated.ts # GraphQL resolvers entry point
+│   │   └── types.generated.ts     # GraphQL types
 ├── prisma/
 │   ├── schema.prisma              # Prisma schema (database models)
 │   └── migrations/                # Database migration files
