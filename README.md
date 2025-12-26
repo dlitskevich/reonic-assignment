@@ -1,5 +1,8 @@
 # EV Charging Station Simulation
 
+<img src="./assets/frontend-1.jpg" alt="Frontend UI part 1" width="100%">
+<img src="./assets/frontend-2.jpg" alt="Frontend UI part 2" width="100%">
+
 ## Overview
 
 ### Simulations (Task 1)
